@@ -1,0 +1,116 @@
+<?php
+/**
+ * @file
+ * Code for features_lock_report module
+ */
+
+ /**
+  * Implements hook_requirements().
+  */
+function features_lock_report_requirements($phase) {
+  if ($phase == 'runtime') {
+    $requirements['features_lock_report'] = array(
+      'title' => 'Features Lock Report',
+      'value' => t('Generate a <a href="@url">report on feature overrides and locks</a>.', array('@url' => url('admin/reports/status/features-lock'))),
+      'severity' => REQUIREMENT_INFO,
+    );
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function features_lock_report_menu() {
+  $items['admin/reports/status/features-lock'] = array(
+    'title' => "Features Lock Report",
+    'page callback' => 'features_lock_report_page',
+    'access arguments' => array('access site reports'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * hook_menu()'s callback for lock-report path
+ */
+function features_lock_report_page() {
+  $report = features_lock_report();
+
+  $html = '<table><tr><th>Feature:Component</th><th>Locked</th><th>Overridden</th></tr>';
+
+  foreach ($report as $module => $components) {
+    foreach ($components as $component => $state) {
+      // If locked and overridden, display row green.
+      if ($state['locked'] == $state['overridden']) {
+        $class = 'ok';
+      }
+      // If locked and not overridden, display row yellow.
+      if ($state['locked'] && !$state['overridden']) {
+        $class = 'warning';
+      }
+      // If not locked and overridden, display row red.
+      if (!$state['locked'] && $state['overridden']) {
+        $class = 'error';
+      }
+
+      $url = url('admin/structure/features/' . $module);
+
+      $html .= '<tr class="' . $class . '"><td><a href="' . $url . '">' . $module . ':' . $component . '</a></td>';
+      $html .= '<td align="center">' . $state['locked'] . '</td>';
+      $html .= '<td align="center">' . $state['overridden'] . '</td>';
+      $html .= '</tr>';
+    }
+  }
+
+  $html .= '</table>';
+
+  return $html;
+}
+
+/**
+ * Returns an array of feature components that are overridden and/or locked.
+ */
+function features_lock_report() {
+  // Get the feature locks.
+  $locks = variable_get('features_feature_locked');
+
+  // Bring in features.export.inc to get state of feature components.
+  require_once('sites/all/modules/features/features.export.inc');
+  $modules = features_get_component_states(array(), FALSE);
+
+  // Create the report array that contains only informaiton about enabled
+  // modules and their overridden and locked states.
+  foreach ($modules as $module => $components) {
+    // Disabled modules have no components.
+    if (!empty($components)) {
+      foreach ($components as $component => $value) {
+        // Set overridden value.
+        if ($value != 0) {
+          $report[$module][$component]['overridden'] = TRUE;
+        }
+        else {
+          $report[$module][$component]['overridden'] = FALSE;
+        }
+
+        // Set locked value.
+        if (isset($locks[$module][$component]) && $locks[$module][$component] == 1) {
+          $report[$module][$component]['locked'] = TRUE;
+        }
+        else {
+          $report[$module][$component]['locked'] = FALSE;
+        }
+
+        // If the component is both unlocked and default, we don't care to
+        // report it. Remove it from the array.
+        if ($report[$module][$component]['locked'] == FALSE && $report[$module][$component]['overridden'] == FALSE) {
+          unset($report[$module][$component]);
+        }
+      }
+    }
+  }
+
+  return $report;
+}
