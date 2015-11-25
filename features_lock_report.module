@@ -9,7 +9,7 @@
   */
 function features_lock_report_requirements($phase) {
   if ($phase == 'runtime') {
-    $description = t('View a <a href="@url">report on feature overrides and locks</a>.', array('@url' => url('admin/reports/status/features-lock')));
+    $description = t('View a <a href="@url">report on feature overrides and locks</a>.', array('@url' => url('admin/reports/features-lock')));
 
     $severity = features_lock_report_report(TRUE);
 
@@ -43,11 +43,11 @@ function features_lock_report_requirements($phase) {
  * Implements hook_menu().
  */
 function features_lock_report_menu() {
-  $items['admin/reports/status/features-lock'] = array(
+  $items['admin/reports/features-lock'] = array(
     'title' => "Features Lock Report",
     'page callback' => 'features_lock_report_page',
     'access arguments' => array('access site reports'),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_NORMAL_ITEM,
   );
 
   return $items;
