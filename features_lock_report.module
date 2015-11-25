@@ -78,7 +78,7 @@ function features_lock_report() {
   $locks = variable_get('features_feature_locked');
 
   // Bring in features.export.inc to get state of feature components.
-  require_once('sites/all/modules/features/features.export.inc');
+  module_load_include('inc', 'features', 'features.export');
   $modules = features_get_component_states(array(), FALSE);
 
   // Create the report array that contains only informaiton about enabled
