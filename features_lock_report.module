@@ -9,10 +9,30 @@
   */
 function features_lock_report_requirements($phase) {
   if ($phase == 'runtime') {
+    $description = t('View a <a href="@url">report on feature overrides and locks</a>.', array('@url' => url('admin/reports/status/features-lock')));
+
+    $severity = features_lock_report_report(TRUE);
+
+    switch ($severity) {
+      case 'OK':
+        $severity = REQUIREMENT_OK;
+        $value = t('All overrides are locked.');
+        break;
+      case 'Warning':
+        $severity = REQUIREMENT_WARNING;
+        $value = t('There are locked components that are not overridden.');
+        break;
+      case 'Error':
+        $severity = REQUIREMENT_ERROR;
+        $value = t('There are overridden components that are not locked and are at risk of being reverted.');
+        break;
+    }
+
     $requirements['features_lock_report'] = array(
       'title' => 'Features Lock Report',
-      'value' => t('Generate a <a href="@url">report on feature overrides and locks</a>.', array('@url' => url('admin/reports/status/features-lock'))),
-      'severity' => REQUIREMENT_INFO,
+      'description' => $description,
+      'value' => $value,
+      'severity' => $severity,
     );
   }
 
