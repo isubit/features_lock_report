@@ -37,7 +37,7 @@ function features_lock_report_menu() {
  * hook_menu()'s callback for lock-report path
  */
 function features_lock_report_page() {
-  $report = features_lock_report();
+  $report = features_lock_report_report();
 
   $html = '<table><tr><th>Feature:Component</th><th>Locked</th><th>Overridden</th></tr>';
 
@@ -73,7 +73,7 @@ function features_lock_report_page() {
 /**
  * Returns an array of feature components that are overridden and/or locked.
  */
-function features_lock_report() {
+function features_lock_report_report() {
   // Get the feature locks.
   $locks = variable_get('features_feature_locked');
 
