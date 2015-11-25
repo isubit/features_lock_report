@@ -72,8 +72,17 @@ function features_lock_report_page() {
 
 /**
  * Returns an array of feature components that are overridden and/or locked.
+ * @param $summary - Set to TRUE to only return "OK", "Warning", or "Error"
+ * depending on the worst-case component.
+ *
+ * @return $report - An array with feature components with lock and overridden
+ * states. If $summary is TRUE, it will return a string "OK", "Warning", or
+ * "Error" depending on the worst-casecomponent.
  */
-function features_lock_report_report() {
+function features_lock_report_report($summary = FALSE) {
+  // 0 = OK, 1 = Warning, 2 = Error
+  $worst_case = '0';
+
   // Get the feature locks.
   $locks = variable_get('features_feature_locked');
 
@@ -87,7 +96,7 @@ function features_lock_report_report() {
     // Disabled modules have no components.
     if (!empty($components)) {
       foreach ($components as $component => $value) {
-        // Set overridden value.
+        // Record overridden value.
         if ($value != 0) {
           $report[$module][$component]['overridden'] = TRUE;
         }
@@ -95,12 +104,23 @@ function features_lock_report_report() {
           $report[$module][$component]['overridden'] = FALSE;
         }
 
-        // Set locked value.
+        // Record locked value.
         if (isset($locks[$module][$component]) && $locks[$module][$component] == 1) {
           $report[$module][$component]['locked'] = TRUE;
         }
         else {
           $report[$module][$component]['locked'] = FALSE;
+        }
+
+        // If the component is overridden and not locked, set $worst_case to Error.
+        if ($report[$module][$component]['locked'] == FALSE && $report[$module][$component]['overridden'] == TRUE) {
+          $worst_case = 2;
+        }
+        // If the component is not overridden, and is locked, set $worst_case to Warning.
+        elseif ($report[$module][$component]['locked'] == TRUE && $report[$module][$component]['overridden'] == FALSE) {
+          if ($worst_case < 1) {
+            $worst_case = 1;
+          }
         }
 
         // If the component is both unlocked and default, we don't care to
@@ -109,6 +129,23 @@ function features_lock_report_report() {
           unset($report[$module][$component]);
         }
       }
+    }
+  }
+
+  // Return the appropriate string if $summary is TRUE.
+  if ($summary) {
+    switch ($worst_case) {
+      case 0:
+        return "OK";
+        break;
+      case 1:
+        return "Warning";
+        break;
+      case 2:
+        return "Error";
+        break;
+      default:
+        return "Error";
     }
   }
 
