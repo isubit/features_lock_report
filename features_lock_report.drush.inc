@@ -57,6 +57,15 @@ function drush_features_lock_report() {
         $module_component = '* ' . $module_component;
       }
 
+      // If contents of states is empty, replace with a space to avoid possible
+      // undefined index in table rendering.
+      if (empty($states['locked'])) {
+        $states['locked'] = ' ';
+      }
+      if (empty($states['overridden'])) {
+        $states['overridden'] = ' ';
+      }
+
       $row = array(
         'module:component' => $module_component,
         'locked' => $states['locked'],
