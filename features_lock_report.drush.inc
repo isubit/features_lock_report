@@ -52,7 +52,7 @@ function drush_features_lock_report() {
     foreach ($components as $component => $states) {
       $module_component = $module . ':' . $component;
 
-      // Add a * to the table to denote a compoent that is overridden and not locked.
+      // Add a * to the table to denote a component that is overridden and not locked.
       if ($states['locked'] == FALSE && $states['overridden'] == TRUE) {
         $module_component = '* ' . $module_component;
       }
