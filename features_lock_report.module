@@ -97,7 +97,7 @@ function features_lock_report_page() {
  *
  * @return $report - An array with feature components with lock and overridden
  * states. If $summary is TRUE, it will return a string "OK", "Warning", or
- * "Error" depending on the worst-casecomponent.
+ * "Error" depending on the worst-case component.
  */
 function features_lock_report_report($summary = FALSE) {
   // 0 = OK, 1 = Warning, 2 = Error
@@ -110,7 +110,7 @@ function features_lock_report_report($summary = FALSE) {
   module_load_include('inc', 'features', 'features.export');
   $modules = features_get_component_states(array(), FALSE);
 
-  // Create the report array that contains only informaiton about enabled
+  // Create the report array that contains only information about enabled
   // modules and their overridden and locked states.
   foreach ($modules as $module => $components) {
     // Disabled modules have no components.
