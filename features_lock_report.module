@@ -8,6 +8,7 @@
   * Implements hook_requirements().
   */
 function features_lock_report_requirements($phase) {
+  $requirements = array();
   if ($phase == 'runtime') {
     $description = t('View a <a href="@url">report on feature overrides and locks</a>.', array('@url' => url('admin/reports/features-lock')));
 
